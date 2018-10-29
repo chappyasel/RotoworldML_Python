@@ -9,7 +9,7 @@ from exportModel import exportToCoreML
 
 #testWithTestFiles(['testData/testData1.csv', 'testData/testData2.csv', 'testData/testData3.csv', 'testData/testData4.csv'], True, False)
 
-generateTestData('testData/tempTestData.csv', 50)
+generateTestData('testData/tempTestData.csv', 200)
 #testWithTestFiles(['testData/tempTestData.csv'], False, True)
 
 #exportToCoreML('src/BTWorkoutClassification.mlmodel')
