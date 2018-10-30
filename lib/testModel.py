@@ -29,9 +29,10 @@ def testWithTestFiles(fileNames, verbose, writeToFile):
                 expectedOutput.append(hotClassifications)
 
         # tokenize articles using saved token dict
+        testingData = globalData.cleanArticles(testingData)
         tokenDict = json.loads(open('src/token_dict.json').read())
         testingData = map(lambda x: tokenize(x, tokenDict), testingData)
-        testingData = pad_sequences(testingData, maxlen=400)
+        testingData = pad_sequences(testingData, maxlen=100)
 
         # calculate predictions
         predictions = model.predict(numpy.array(testingData))

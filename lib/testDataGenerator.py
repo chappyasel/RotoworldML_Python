@@ -1,5 +1,6 @@
 
-import urllib, json
+import urllib
+import json
 import globalData
 globalData.init()
 
@@ -13,8 +14,7 @@ def generateTestData(fileName, num, articleid):
         url = rotoLinkForOffset(lastOffset)
         response = urllib.urlopen(url)
         data = json.loads(response.read())
-        for d in data:
-            arr.append(d['ANALYSIS'])
+        arr.extend(map(lambda d: d['HEADLINE'] + ': ' + d['ANALYSIS'], data))
         lastOffset = data[-1]['NEWSID'] - 1
     with open(fileName, 'w') as f:
         for a in arr:

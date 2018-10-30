@@ -6,6 +6,7 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
 from keras.models import model_from_json
 from keras.utils import plot_model
+import urllib
 import pydot
 import csv
 import numpy
@@ -25,12 +26,14 @@ def buildModelWithTrainingFiles(trainingFiles):
             hotClassifications[globalData.SENTIMENTS.index(row[0])] = 1
             Y.append(hotClassifications)
 
-    maxFeatures = 2000
-    maxWords = 400
+    maxFeatures = 1000
+    maxWords = 100
+
+    X = globalData.cleanArticles(X)
 
     tokenizer = Tokenizer(num_words=maxFeatures, split=' ')
     tokenizer.fit_on_texts(X)
-    tokenDict = {k : v for k, v in tokenizer.word_index.iteritems() if v <= maxFeatures}
+    tokenDict = {k : v for k, v in tokenizer.word_index.iteritems() if v <= maxFeatures - 1}
 
     X = tokenizer.texts_to_sequences(X)
     X = pad_sequences(X, maxlen=maxWords)
@@ -42,7 +45,7 @@ def buildModelWithTrainingFiles(trainingFiles):
     model = Sequential()
     model.add(Embedding(maxFeatures, 32, input_length=maxWords))
     model.add(Flatten())
-    model.add(Dense(200, activation='relu'))
+    model.add(Dense(20, activation='relu'))
     model.add(Dense(len(globalData.SENTIMENTS), kernel_initializer = 'uniform', activation = 'softmax'))
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
