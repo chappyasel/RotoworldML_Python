@@ -1,4 +1,3 @@
-
 from keras.models import model_from_json
 import csv
 import numpy
@@ -32,6 +31,7 @@ def testWithTestFiles(fileNames, verbose, writeToFile):
                 hotClassifications = [0] * len(globalData.CLASSIFICATIONS)
                 hotClassifications[globalData.CLASSIFICATIONS.index(row[1])] = 1
                 expectedOutput.append(hotClassifications)
+
         # calculate predictions
         predictions = model.predict(numpy.array(testingData))
         f = open('testData/resultData.csv', 'w')

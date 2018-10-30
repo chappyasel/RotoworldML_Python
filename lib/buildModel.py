@@ -1,6 +1,10 @@
 from keras.models import Sequential
-from keras.models import model_from_json
 from keras.layers import Dense
+from keras.layers import Flatten
+from keras.layers.embeddings import Embedding
+from keras.preprocessing.sequence import pad_sequences
+from keras.preprocessing.text import Tokenizer
+from keras.models import model_from_json
 from keras.utils import plot_model
 from keras.utils import to_categorical
 import pydot
@@ -17,31 +21,35 @@ def buildModelWithTrainingFiles(trainingFiles):
     for fileName in trainingFiles:
         data = csv.reader(open(fileName))
         for row in data:
-            bodySplit = row[0].split('#')
-            intSplit = [0] * len(globalData.BODY_SPLITS)
-            for split in bodySplit:
-                arr = split.split(' ', 1)
-                i = globalData.BODY_SPLITS.index(arr[1])
-                intSplit[i] = arr[0]
-            X.append(intSplit)
-            hotClassifications = [0] * len(globalData.CLASSIFICATIONS)
-            hotClassifications[globalData.CLASSIFICATIONS.index(row[1])] = 1
+            X.append(row[1])
+            hotClassifications = [0] * len(globalData.SENTIMENTS)
+            hotClassifications[globalData.SENTIMENTS.index(row[0])] = 1
             Y.append(hotClassifications)
+
+    maxFeatures = 2000
+    maxWords = 400
+
+    tokenizer = Tokenizer(num_words=maxFeatures, split=' ')
+    tokenizer.fit_on_texts(X)
+    X = tokenizer.texts_to_sequences(X)
+
+    X = pad_sequences(X, maxlen=maxWords)
 
     trainingData = numpy.array(X)
     expectedOutput = numpy.array(Y)
 
+    print(trainingData)
+
     # create model
     model = Sequential()
-    model.add(Dense(10, input_dim = len(globalData.BODY_SPLITS), kernel_initializer = 'uniform', activation = 'relu'))
-    model.add(Dense(14, kernel_initializer = 'uniform', activation = 'relu'))
-    model.add(Dense(len(globalData.CLASSIFICATIONS), kernel_initializer = 'uniform', activation = 'softmax'))
-
-    # Compile model
-    model.compile(loss = 'categorical_crossentropy', optimizer = 'adam', metrics = ['accuracy'])
+    model.add(Embedding(maxFeatures, 32, input_length=maxWords))
+    model.add(Flatten())
+    model.add(Dense(200, activation='relu'))
+    model.add(Dense(len(globalData.SENTIMENTS), kernel_initializer = 'uniform', activation = 'softmax'))
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
     # Fit the model
-    model.fit(trainingData, expectedOutput, epochs = 100000, batch_size = len(trainingData))
+    model.fit(trainingData, expectedOutput, epochs = 200, batch_size = len(trainingData))
 
     # evaluate the model
     scores = model.evaluate(trainingData, expectedOutput)

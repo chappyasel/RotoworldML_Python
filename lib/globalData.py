@@ -1,5 +1,5 @@
 
 def init():
-   global CLASSIFICATIONS
-   CLASSIFICATIONS = ["+", "-", "0", "!"]
-                   # positive, negative, neutral, injury
+    global SENTIMENTS
+    SENTIMENTS = ["+", "-", "0"]
+                # positive, negative, neutral
