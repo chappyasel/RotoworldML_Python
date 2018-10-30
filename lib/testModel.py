@@ -1,7 +1,9 @@
 from keras.models import model_from_json
+from keras.preprocessing.sequence import pad_sequences
 import csv
 import numpy
 import globalData
+import json
 globalData.init()
 
 def testWithTestFiles(fileNames, verbose, writeToFile):
@@ -20,17 +22,16 @@ def testWithTestFiles(fileNames, verbose, writeToFile):
         testingData, expectedOutput = [], []
 
         for row in csv.reader(open(fileName)):
-            bodySplit = row[0].split('#')
-            intSplit = [0] * len(globalData.BODY_SPLITS)
-            for split in bodySplit:
-                arr = split.split(' ', 1)
-                i = globalData.BODY_SPLITS.index(arr[1])
-                intSplit[i] = arr[0]
-            testingData.append(intSplit)
-            if (len(row) > 1):
-                hotClassifications = [0] * len(globalData.CLASSIFICATIONS)
-                hotClassifications[globalData.CLASSIFICATIONS.index(row[1])] = 1
+            testingData.append(row[1])
+            if not writeToFile:
+                hotClassifications = [0] * len(globalData.SENTIMENTS)
+                hotClassifications[globalData.SENTIMENTS.index(row[0])] = 1
                 expectedOutput.append(hotClassifications)
+
+        # tokenize articles using saved token dict
+        tokenDict = json.loads(open('src/token_dict.json').read())
+        testingData = map(lambda x: tokenize(x, tokenDict), testingData)
+        testingData = pad_sequences(testingData, maxlen=400)
 
         # calculate predictions
         predictions = model.predict(numpy.array(testingData))
@@ -43,18 +44,29 @@ def testWithTestFiles(fileNames, verbose, writeToFile):
                 if pred == actl:
                     numCorrect += 1
                 elif verbose:
-                    print fileName, i+1, globalData.CLASSIFICATIONS[pred], '  --should be->  ', globalData.CLASSIFICATIONS[actl], '   certainty:', predictions[i][pred] * 100
+                    print fileName, i+1, globalData.SENTIMENTS[pred], '  --should be->  ', globalData.SENTIMENTS[actl], '   certainty:', predictions[i][pred] * 100
                 if writeToFile:
-                    f.write(row[0] + ',' + globalData.CLASSIFICATIONS[pred] + ',' + str(predictions[i][pred] * 100)[:4] + '\n')
+                    f.write(globalData.SENTIMENTS[pred] + ',' + row[1] + ',' + str(predictions[i][pred] * 100)[:4] + '\n')
         else:
             i = 0
             for row in csv.reader(open(fileName)):
                 pred = predictions[i].argmax(axis = 0)
                 if verbose:
-                    print i+1, row[0], '  --guess->  ', globalData.CLASSIFICATIONS[pred], '   certainty:', predictions[i][pred] * 100
+                    print i+1, row[0], '  --guess->  ', globalData.SENTIMENTS[pred], '   certainty:', predictions[i][pred] * 100
                 if writeToFile:
-                    f.write(row[0] + ',' + globalData.CLASSIFICATIONS[pred] + ',' + str(predictions[i][pred] * 100)[:4] + '\n')
+                    article = '"' + row[1].replace('&quot;', '\'') + '"'
+                    f.write(globalData.SENTIMENTS[pred] + ',' + article + ',' + str(predictions[i][pred] * 100)[:4] + '\n')
                 i += 1
 
     if total:
         print("*********************************************** Actual accuracy: %.2f%%" % (float(numCorrect) / total * 100))
+
+def tokenize(article, dict):
+    words = article.lower().split(' ')
+    tokenized = []
+    for word in words:
+        if dict.get(word) != None:
+            tokenized.append(dict[word])
+        else:
+            tokenized.append(0)
+    return tokenized
