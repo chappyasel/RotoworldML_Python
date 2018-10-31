@@ -4,4 +4,4 @@ Classifications:
 1.  positive (+)
 2.  negative (-)
 3.  neutral (0)
-4.  injury (! / 0)
+4.  injury (!)

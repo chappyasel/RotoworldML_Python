@@ -45,7 +45,7 @@ def buildModelWithTrainingFiles(trainingFiles):
     model = Sequential()
     model.add(Embedding(maxFeatures, 32, input_length=maxWords))
     model.add(Flatten())
-    model.add(Dense(20, activation='relu'))
+    model.add(Dense(50, activation='relu'))
     model.add(Dense(len(globalData.SENTIMENTS), kernel_initializer = 'uniform', activation = 'softmax'))
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
