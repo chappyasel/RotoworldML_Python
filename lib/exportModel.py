@@ -4,7 +4,7 @@ import coremltools
 import globalData
 globalData.init()
 
-def exportToCoreML(fileName):
+def exportModelToCoreML(fileName):
     # load json and create model
     json_file = open('src/model.json', 'r')
     loaded_model_json = json_file.read()

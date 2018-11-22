@@ -6,7 +6,7 @@ import globalData
 import json
 globalData.init()
 
-def testWithTestFiles(fileNames, verbose, writeToFile):
+def testModelWithTestFiles(fileNames, verbose, writeToFile):
     # load json and create model
     json_file = open('src/model.json', 'r')
     loaded_model_json = json_file.read()

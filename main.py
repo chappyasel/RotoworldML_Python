@@ -5,11 +5,11 @@ from testModel import testWithTestFiles
 from testDataGenerator import generateTestData
 from exportModel import exportToCoreML
 
-#buildModelWithTrainingFiles(['testData/testData1.csv'])
+buildModelWithTrainingFiles(['testData/testData1.csv', 'testData/testData2.csv'])
 
-#testWithTestFiles(['testData/testData1.csv', 'testData/testData2.csv', 'testData/testData3.csv', 'testData/testData4.csv'], True, False)
+testModelWithTestFiles(['testData/testData3.csv'], verbose = True, writeToFile = False)
 
-generateTestData('testData/tempTestData.csv', 500, 330000) # 1 - 370,000 OR 0 for most recent
-testWithTestFiles(['testData/tempTestData.csv'], False, True)
+#generateTestData('testData/tempTestData.csv', num = 200, articleid = 340000) # 1 - 370,000 OR 0 for most recent
+#testModelWithTestFiles(['testData/tempTestData.csv'], verbose = False, writeToFile = True)
 
-#exportToCoreML('src/BTWorkoutClassification.mlmodel')
+#exportModelToCoreML('src/BTWorkoutClassification.mlmodel')
