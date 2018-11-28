@@ -32,7 +32,7 @@ def testModelWithTestFiles(fileNames, verbose, writeToFile):
         testingData = globalData.cleanArticles(testingData)
         tokenDict = json.loads(open('src/token_dict.json').read())
         testingData = map(lambda x: tokenize(x, tokenDict), testingData)
-        testingData = pad_sequences(testingData, maxlen=100)
+        testingData = pad_sequences(testingData, maxlen=globalData.MAX_WORDS)
 
         # calculate predictions
         predictions = model.predict(numpy.array(testingData))
@@ -45,7 +45,7 @@ def testModelWithTestFiles(fileNames, verbose, writeToFile):
                 if pred == actl:
                     numCorrect += 1
                 elif verbose:
-                    print fileName, i+1, globalData.SENTIMENTS[pred], '  --should be->  ', globalData.SENTIMENTS[actl], '   certainty:', predictions[i][pred] * 100
+                    print fileName, i+1, ':   ', globalData.SENTIMENTS[pred], '  --should be->  ', globalData.SENTIMENTS[actl], '   certainty:', predictions[i][pred] * 100
                 if writeToFile:
                     f.write(globalData.SENTIMENTS[pred] + ',' + row[1] + ',' + str(predictions[i][pred] * 100)[:4] + '\n')
         else:
@@ -53,14 +53,14 @@ def testModelWithTestFiles(fileNames, verbose, writeToFile):
             for row in csv.reader(open(fileName)):
                 pred = predictions[i].argmax(axis = 0)
                 if verbose:
-                    print i+1, row[0], '  --guess->  ', globalData.SENTIMENTS[pred], '   certainty:', predictions[i][pred] * 100
+                    print i+1, ':   ', row[0], '  --guess->  ', globalData.SENTIMENTS[pred], '   certainty:', predictions[i][pred] * 100
                 if writeToFile:
                     article = '"' + row[1].replace('&quot;', '\'') + '"'
                     f.write(globalData.SENTIMENTS[pred] + ',' + article + ',' + str(predictions[i][pred] * 100)[:4] + '\n')
                 i += 1
 
     if total:
-        print("*********************************************** Actual accuracy: %.2f%%" % (float(numCorrect) / total * 100))
+        print("*************************************************************** Actual accuracy: %.2f%%" % (float(numCorrect) / total * 100))
 
 def tokenize(article, dict):
     words = article.lower().split(' ')

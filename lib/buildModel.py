@@ -1,16 +1,13 @@
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import Flatten
-from keras.layers.embeddings import Embedding
+from keras.models import Sequential, model_from_json
+from keras.layers import Embedding, Dense, Flatten, LSTM
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
-from keras.models import model_from_json
 from keras.utils import plot_model
 import urllib
 import pydot
 import csv
-import numpy
 import json
+import numpy
 numpy.random.seed(1)
 import globalData
 globalData.init()
@@ -26,31 +23,29 @@ def buildModelWithTrainingFiles(trainingFiles):
             hotClassifications[globalData.SENTIMENTS.index(row[0])] = 1
             Y.append(hotClassifications)
 
-    maxFeatures = 1000
-    maxWords = 100
-
     X = globalData.cleanArticles(X)
 
-    tokenizer = Tokenizer(num_words=maxFeatures, split=' ')
+    tokenizer = Tokenizer(num_words=globalData.MAX_FEATURES, split=' ')
     tokenizer.fit_on_texts(X)
-    tokenDict = {k : v for k, v in tokenizer.word_index.iteritems() if v <= maxFeatures - 1}
+    tokenDict = {k : v for k, v in tokenizer.word_index.iteritems() if v <= globalData.MAX_FEATURES - 1}
 
     X = tokenizer.texts_to_sequences(X)
-    X = pad_sequences(X, maxlen=maxWords)
+    X = pad_sequences(X, maxlen=globalData.MAX_WORDS)
 
     trainingData = numpy.array(X)
     expectedOutput = numpy.array(Y)
 
+    embed_dim = 32
+
     # create model
     model = Sequential()
-    model.add(Embedding(maxFeatures, 32, input_length=maxWords))
-    model.add(Flatten())
-    model.add(Dense(50, activation='relu'))
+    model.add(Embedding(globalData.MAX_FEATURES, embed_dim, input_length=globalData.MAX_WORDS))
+    model.add(LSTM(100))
     model.add(Dense(len(globalData.SENTIMENTS), kernel_initializer = 'uniform', activation = 'softmax'))
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-    # Fit the model
-    model.fit(trainingData, expectedOutput, epochs = 100, batch_size = len(trainingData))
+    # fit model
+    model.fit(trainingData, expectedOutput, epochs = 200, batch_size = len(trainingData))
 
     # evaluate the model
     scores = model.evaluate(trainingData, expectedOutput)

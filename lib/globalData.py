@@ -3,9 +3,10 @@ import json
 from string import digits
 
 def init():
-    global SENTIMENTS
-    SENTIMENTS = ["+", "-", "0", "!"]
-                # positive, negative, neutral
+    global SENTIMENTS, MAX_WORDS, MAX_FEATURES
+    SENTIMENTS = ["+", "-", "0", "!"] # positive, negative, neutral
+    MAX_WORDS = 100 # for padding
+    MAX_FEATURES = 1000 # max saved words
 
 # anonymize player names in article string list
 def cleanArticles(articles):

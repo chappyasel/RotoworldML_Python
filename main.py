@@ -1,9 +1,9 @@
 import sys
 sys.path.append('./lib')
 from buildModel import buildModelWithTrainingFiles
-from testModel import testWithTestFiles
+from testModel import testModelWithTestFiles
 from testDataGenerator import generateTestData
-from exportModel import exportToCoreML
+from exportModel import exportModelToCoreML
 
 buildModelWithTrainingFiles(['testData/testData1.csv', 'testData/testData2.csv'])
 
